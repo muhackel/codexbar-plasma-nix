@@ -1,0 +1,80 @@
+name: Upstream-Pins aktualisieren
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    name: Pins aktualisieren und prüfen
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Nix installieren
+        uses: cachix/install-nix-action@v31
+
+      - name: Pins aktualisieren
+        run: nix run .#update
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Änderungen erkennen
+        id: changes
+        run: |
+          if git diff --quiet -- nix/sources.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Aktualisierte Pakete prüfen
+        id: verify
+        if: steps.changes.outputs.changed == 'true'
+        run: nix flake check 2>&1 | tee "$RUNNER_TEMP/flake-check.log"
+
+      - name: Pull-Request-Text erzeugen
+        if: always() && steps.changes.outputs.changed == 'true'
+        env:
+          CHECK_OUTCOME: ${{ steps.verify.outcome }}
+        run: |
+          {
+            echo "Die Upstream-Pins wurden mit der Update-App fortgeschrieben."
+            echo
+            if [[ "$CHECK_OUTCOME" == "success" ]]; then
+              echo "\`nix flake check\` war erfolgreich."
+            else
+              echo "\`nix flake check\` ist fehlgeschlagen. Der Job bleibt rot."
+              echo
+              echo '<details><summary>Fehlerauszug</summary>'
+              echo
+              echo '```text'
+              tail -n 120 "$RUNNER_TEMP/flake-check.log"
+              echo '```'
+              echo '</details>'
+            fi
+          } > "$RUNNER_TEMP/pull-request.md"
+
+      - name: Pull Request anlegen
+        if: always() && steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ github.token }}
+          branch: update/codexbar-pins
+          base: main
+          add-paths: nix/sources.json
+          delete-branch: true
+          commit-message: CodexBar-Pins aktualisieren
+          title: CodexBar-Pins aktualisieren
+          body-path: ${{ runner.temp }}/pull-request.md
