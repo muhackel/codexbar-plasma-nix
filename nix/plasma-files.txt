@@ -1,0 +1,8 @@
+contents/
+LICENSE
+NOTICE.md
+README.md
+docs/codexbar-plasma-codex.png
+docs/codexbar-plasma-overview.png
+metadata.json
+scripts/update-widget.sh
