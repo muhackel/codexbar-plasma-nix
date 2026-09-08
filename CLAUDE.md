@@ -15,7 +15,7 @@ Nicht-Draft- und Nicht-Prerelease-Releases, schreibt nichts und liefert das
 festgelegte JSON. `nix run .#update` aktualisiert die Datei atomar; ein Fehler
 bei einem Upstream lässt die vorhandene Datei unverändert.
 
-Die CLI-Pin ist im Lieferstand `0.56.3`, die Widget-Pin `0.2.24`. Bei der
+Die CLI-Pin steht aktuell auf `0.57.0`, die Widget-Pin auf `0.2.35`. Bei der
 Hash-Ermittlung gilt: Für das CLI-Release-Archiv wird der Hash der Archivdatei
 ermittelt, weil der Ausdruck `fetchurl` verwendet. Für das Widget wird der
 Hash des entpackten Quellbaums ermittelt, weil `fetchFromGitHub` verwendet
