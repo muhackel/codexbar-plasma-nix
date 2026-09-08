@@ -131,14 +131,14 @@ Beispiel:
 
 ```sh
 nix store prefetch-file --json \
-  https://github.com/steipete/CodexBar/releases/download/v0.56.3/CodexBarCLI-v0.56.3-linux-x86_64.tar.gz
+  https://github.com/steipete/CodexBar/releases/download/v0.57.0/CodexBarCLI-v0.57.0-linux-x86_64.tar.gz
 ```
 
 Für das Widget wird der Hash des entpackten GitHub-Quellbaums ermittelt:
 
 ```sh
 nix store prefetch-file --json --unpack \
-  https://github.com/Lucenx9/codexbar-plasma/archive/refs/tags/v0.2.24.tar.gz
+  https://github.com/Lucenx9/codexbar-plasma/archive/refs/tags/v0.2.35.tar.gz
 ```
 
 Die Update-App erledigt beide Varianten selbst und schreibt die Ergebnisse in
