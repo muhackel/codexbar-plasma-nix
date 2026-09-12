@@ -42,6 +42,10 @@ nix run .#update -- --check
 
 Die vollständigen Abläufe stehen in [`build.md`](build.md).
 
+Die Update-Automation prüft täglich um 04:17, 12:17 und 20:17 UTC auf neue
+Upstream-Versionen. Update-PRs nennen für beide Pakete die bisherige und die
+neue Version sowie das Ergebnis von `nix flake check`.
+
 Für Prüfungen im unversionierten Umsetzungs-Snapshot ist die schreibfreie
 `path:`-Form mit `--no-write-lock-file` zu verwenden, zum Beispiel:
 
