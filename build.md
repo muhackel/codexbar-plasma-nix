@@ -106,10 +106,14 @@ Im Konsumenten wird danach lediglich der Flake-Lock nachgezogen:
 nix flake update codexbar-plasma-nix
 ```
 
-Die GitHub Action führt diesen Ablauf täglich nach Zeitplan oder auf
-`workflow_dispatch` aus. Bleibt `nix/sources.json` unverändert, erstellt sie
+Die GitHub Action führt diesen Ablauf dreimal täglich um 04:17, 12:17 und
+20:17 UTC oder auf `workflow_dispatch` aus. Das entspricht in Deutschland
+05:17, 13:17 und 21:17 Uhr im Winter beziehungsweise 06:17, 14:17 und
+22:17 Uhr im Sommer. Bleibt `nix/sources.json` unverändert, erstellt sie
 keinen Branch und keinen Pull Request. Bei einer Änderung läuft die Prüfung
-vor der PR-Erstellung. Auch wenn sie fehlschlägt, wird ein Pull Request mit
+vor der PR-Erstellung. Jeder PR zeigt die bisherige Version aus dem
+ausgecheckten `main` und die neue Version für beide Pakete als Tabelle.
+Auch wenn die Prüfung fehlschlägt, wird ein Pull Request mit
 Prüfergebnis und Fehlerauszug angelegt; der Job bleibt fehlgeschlagen, damit
 kein ungeprüfter Bump unbemerkt nach `main` gelangt.
 

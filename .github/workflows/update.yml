@@ -2,7 +2,7 @@ name: Upstream-Pins aktualisieren
 
 on:
   schedule:
-    - cron: "17 4 * * *"
+    - cron: "17 4,12,20 * * *"
   workflow_dispatch:
 
 permissions:
@@ -49,8 +49,17 @@ jobs:
         env:
           CHECK_OUTCOME: ${{ steps.verify.outcome }}
         run: |
+          set -euo pipefail
+          git show HEAD:nix/sources.json > "$RUNNER_TEMP/sources-before.json"
           {
             echo "Die Upstream-Pins wurden mit der Update-App fortgeschrieben."
+            echo
+            echo '| Paket | Vorher | Nachher |'
+            echo '| --- | --- | --- |'
+            jq -r --slurpfile before "$RUNNER_TEMP/sources-before.json" '
+              to_entries[]
+              | "| \(.key) | \($before[0][.key].version) | \(.value.version) |"
+            ' nix/sources.json
             echo
             if [[ "$CHECK_OUTCOME" == "success" ]]; then
               echo "\`nix flake check\` war erfolgreich."

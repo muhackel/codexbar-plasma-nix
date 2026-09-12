@@ -34,6 +34,10 @@ Referenzausdruck entspricht.
 
 ## Wartung
 
+Die Update-Automation läuft dreimal täglich um 04:17, 12:17 und 20:17 UTC.
+Der PR-Text vergleicht die Versionen beider Pakete aus dem ausgecheckten
+`main` mit der aktualisierten `nix/sources.json`.
+
 Nach einem Versionssprung können sich die Bibliotheksabhängigkeiten der
 vorgebauten CLI ändern. Scheitert `autoPatchelfHook`, müssen die fehlenden
 Laufzeitbibliotheken im CLI-Ausdruck ergänzt und beide Pakete erneut geprüft
