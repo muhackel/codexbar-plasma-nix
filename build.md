@@ -113,9 +113,14 @@ Die GitHub Action führt diesen Ablauf dreimal täglich um 04:17, 12:17 und
 keinen Branch und keinen Pull Request. Bei einer Änderung läuft die Prüfung
 vor der PR-Erstellung. Jeder PR zeigt die bisherige Version aus dem
 ausgecheckten `main` und die neue Version für beide Pakete als Tabelle.
-Auch wenn die Prüfung fehlschlägt, wird ein Pull Request mit
-Prüfergebnis und Fehlerauszug angelegt; der Job bleibt fehlgeschlagen, damit
-kein ungeprüfter Bump unbemerkt nach `main` gelangt.
+War `nix flake check` erfolgreich, führt der Workflow den PR sofort per
+Merge-Commit (`--no-ff`) nach `main` zusammen und löscht den Update-Branch.
+`--match-head-commit` stellt sicher, dass genau der geprüfte Stand gemergt
+wird. Auch wenn die Prüfung fehlschlägt, wird ein Pull Request mit
+Prüfergebnis und Fehlerauszug angelegt; er bleibt offen und der Job
+fehlgeschlagen, damit kein ungeprüfter Bump unbemerkt nach `main` gelangt.
+Ein eigener PR-Check wäre wirkungslos: Mit `GITHUB_TOKEN` erzeugte PRs lösen
+keine weiteren Workflows aus, daher prüft und mergt derselbe Job.
 
 Der Koordinator belegt die netzabhängigen Live-Läufe in einer separaten
 Arbeitskopie. Für `--check` wird der vollständige Dateibaum außerhalb von
