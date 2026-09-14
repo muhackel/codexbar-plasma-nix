@@ -36,7 +36,10 @@ Referenzausdruck entspricht.
 
 Die Update-Automation läuft dreimal täglich um 04:17, 12:17 und 20:17 UTC.
 Der PR-Text vergleicht die Versionen beider Pakete aus dem ausgecheckten
-`main` mit der aktualisierten `nix/sources.json`.
+`main` mit der aktualisierten `nix/sources.json`. Nach erfolgreichem
+`nix flake check` mergt derselbe Job den PR per Merge-Commit
+(`gh pr merge --merge --match-head-commit`); ein separater PR-Workflow würde
+bei `GITHUB_TOKEN`-PRs nicht ausgelöst. Fehlgeschlagene PRs bleiben offen.
 
 Nach einem Versionssprung können sich die Bibliotheksabhängigkeiten der
 vorgebauten CLI ändern. Scheitert `autoPatchelfHook`, müssen die fehlenden
