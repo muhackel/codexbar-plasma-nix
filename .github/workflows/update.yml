@@ -76,6 +76,7 @@ jobs:
           } > "$RUNNER_TEMP/pull-request.md"
 
       - name: Pull Request anlegen
+        id: pr
         if: always() && steps.changes.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
@@ -87,3 +88,17 @@ jobs:
           commit-message: CodexBar-Pins aktualisieren
           title: CodexBar-Pins aktualisieren
           body-path: ${{ runner.temp }}/pull-request.md
+
+      - name: Geprüften Pull Request zusammenführen
+        if: steps.verify.outcome == 'success' && steps.pr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.pull-request-number }}
+          PR_HEAD_SHA: ${{ steps.pr.outputs.pull-request-head-sha }}
+        run: |
+          set -euo pipefail
+          gh pr merge "$PR_NUMBER" \
+            --repo "$GITHUB_REPOSITORY" \
+            --merge \
+            --delete-branch \
+            --match-head-commit "$PR_HEAD_SHA"
