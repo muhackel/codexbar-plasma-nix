@@ -94,7 +94,9 @@ In einem versionierten Checkout:
 1. `nix run .#update -- --check` ausführen und die JSON-Ausgabe prüfen.
 2. Für einen Bump `nix run .#update` ausführen. Die App fragt pro Upstream die
    Releases ab, überspringt Drafts und Prereleases, prüft das Tag-Format und
-   sucht das vorgeschriebene CLI-Asset.
+   sucht das vorgeschriebene CLI-Asset. Die Hashes ermittelt sie bei jedem
+   Lauf neu; ohne Versionssprung wird ein abweichender Hash als `Hash-Drift`
+   gemeldet und fortgeschrieben.
 3. Die Änderung an `nix/sources.json` prüfen.
 4. `nix flake check --no-write-lock-file path:.` ausführen; dieser Check baut
    beide Pakete.
