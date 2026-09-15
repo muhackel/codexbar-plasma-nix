@@ -43,8 +43,10 @@ nix run .#update -- --check
 Die vollständigen Abläufe stehen in [`build.md`](build.md).
 
 Die Update-Automation prüft täglich um 04:17, 12:17 und 20:17 UTC auf neue
-Upstream-Versionen. Update-PRs nennen für beide Pakete die bisherige und die
-neue Version sowie das Ergebnis von `nix flake check`. Erfolgreich geprüfte
+Upstream-Versionen und auf nachträglich ausgetauschte Release-Assets
+(Hash-Drift bei gleicher Version). Update-PRs nennen für beide Pakete die
+bisherige und die neue Version, ob sich der Hash geändert hat, sowie das
+Ergebnis von `nix flake check`. Erfolgreich geprüfte
 Update-PRs werden automatisch per Merge-Commit nach `main` übernommen;
 fehlgeschlagene bleiben offen.
 
