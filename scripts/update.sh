@@ -192,10 +192,8 @@ if [[ $mode == check ]]; then
   exit 0
 fi
 
-if [[ $cli_outdated == false && $plasma_outdated == false ]]; then
-  exit 0
-fi
-
+# Hashes werden auch ohne Versionssprung neu ermittelt: Upstream kann Assets
+# oder Tags einer bereits gepinnten Version nachträglich austauschen.
 cli_url="https://github.com/$cli_owner/$cli_repo/releases/download/$cli_tag/$cli_asset"
 plasma_url="https://github.com/$plasma_owner/$plasma_repo/archive/refs/tags/$plasma_tag.tar.gz"
 
@@ -211,6 +209,19 @@ if ! plasma_prefetch=$("$nix_command" store prefetch-file --json --unpack "$plas
 fi
 if ! plasma_hash=$(jq -er '.hash | select(type == "string" and test("^sha256-[A-Za-z0-9+/]{43}=$"))' <<<"$plasma_prefetch"); then
   fail "Nix lieferte keinen gültigen Hash für $plasma_owner/$plasma_repo"
+fi
+
+cli_local_hash=$(source_field codexbar-cli hash)
+plasma_local_hash=$(source_field codexbar-plasma hash)
+if [[ $cli_outdated == false && $cli_hash != "$cli_local_hash" ]]; then
+  printf 'Hash-Drift bei %s %s: %s -> %s\n' "$cli_asset" "$cli_local" "$cli_local_hash" "$cli_hash" >&2
+fi
+if [[ $plasma_outdated == false && $plasma_hash != "$plasma_local_hash" ]]; then
+  printf 'Hash-Drift bei %s/%s %s: %s -> %s\n' "$plasma_owner" "$plasma_repo" "$plasma_local" "$plasma_local_hash" "$plasma_hash" >&2
+fi
+if [[ $cli_outdated == false && $plasma_outdated == false \
+  && $cli_hash == "$cli_local_hash" && $plasma_hash == "$plasma_local_hash" ]]; then
+  exit 0
 fi
 
 target_tmp=$(mktemp "${sources_file}.tmp.XXXXXX")
