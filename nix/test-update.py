@@ -261,19 +261,51 @@ def test_atomic_failures(updater):
         assert_unchanged(case, f"Fehler beim Update ({env})")
 
 
-def test_current_update_does_not_prefetch(updater):
+def test_current_update_does_not_write(updater):
     case = run_case(
         updater,
         args=(),
-        extra_env={"CLI_REMOTE": "0.56.3", "PLASMA_REMOTE": "0.2.24"},
+        extra_env={
+            "CLI_REMOTE": "0.56.3",
+            "PLASMA_REMOTE": "0.2.24",
+            "CLI_HASH": OLD_CLI_HASH,
+            "PLASMA_HASH": OLD_PLASMA_HASH,
+        },
     )
     result = case["result"]
     if result.returncode != 0 or result.stdout:
         fail(f"Update ohne Änderung verhält sich falsch: {result.returncode}, {result.stdout!r}")
-    if case["after"] != case["before"] or case["nix_log_exists"]:
-        fail("Update ohne Änderung hat geschrieben oder Hashes ermittelt")
-    if case["after_entries"] != case["before_entries"]:
+    if case["after"] != case["before"]:
+        fail("Update ohne Änderung hat geschrieben")
+    calls = [json.loads(line) for line in case["nix_log"].splitlines()]
+    if [call["kind"] for call in calls] != ["cli", "plasma"]:
+        fail(f"Update ohne Versionssprung hat die Hashes nicht geprüft: {calls}")
+    if case["after_entries"] != sorted([*case["before_entries"], "nix.log"]):
         fail("Update ohne Änderung hat Dateien angelegt")
+
+
+def test_hash_drift_updates_hash(updater):
+    for label, env, expected_cli, expected_plasma in (
+        ("CLI-Drift", {"PLASMA_HASH": OLD_PLASMA_HASH}, CLI_HASH, OLD_PLASMA_HASH),
+        ("Plasma-Drift", {"CLI_HASH": OLD_CLI_HASH}, OLD_CLI_HASH, PLASMA_HASH),
+    ):
+        case = run_case(
+            updater,
+            args=(),
+            extra_env={"CLI_REMOTE": "0.56.3", "PLASMA_REMOTE": "0.2.24", **env},
+        )
+        result = case["result"]
+        if result.returncode != 0 or result.stdout:
+            fail(f"{label}: Update fehlgeschlagen: {result.returncode}, {result.stderr}")
+        if "Hash-Drift" not in result.stderr:
+            fail(f"{label}: Hinweis auf Hash-Drift fehlt")
+        expected = copy.deepcopy(BASE_SOURCES)
+        expected["codexbar-cli"]["hash"] = expected_cli
+        expected["codexbar-plasma"]["hash"] = expected_plasma
+        if case["sources"] != expected:
+            fail(f"{label}: falsch aktualisiert: {case['sources']}")
+        if any(name.startswith("sources.json.tmp.") for name in case["after_entries"]):
+            fail(f"{label}: temporäre Quelldatei wurde nicht entfernt")
 
 
 def main():
@@ -294,7 +326,8 @@ def main():
         test_remote_older_is_error,
         test_update_and_hash_modes,
         test_atomic_failures,
-        test_current_update_does_not_prefetch,
+        test_current_update_does_not_write,
+        test_hash_drift_updates_hash,
     )
     for test in tests:
         test(updater_command)

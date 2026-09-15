@@ -54,11 +54,11 @@ jobs:
           {
             echo "Die Upstream-Pins wurden mit der Update-App fortgeschrieben."
             echo
-            echo '| Paket | Vorher | Nachher |'
-            echo '| --- | --- | --- |'
+            echo '| Paket | Vorher | Nachher | Hash geändert |'
+            echo '| --- | --- | --- | --- |'
             jq -r --slurpfile before "$RUNNER_TEMP/sources-before.json" '
               to_entries[]
-              | "| \(.key) | \($before[0][.key].version) | \(.value.version) |"
+              | "| \(.key) | \($before[0][.key].version) | \(.value.version) | \(if $before[0][.key].hash == .value.hash then "nein" else "ja" end) |"
             ' nix/sources.json
             echo
             if [[ "$CHECK_OUTCOME" == "success" ]]; then
