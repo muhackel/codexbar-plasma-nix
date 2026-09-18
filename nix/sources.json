@@ -2,9 +2,9 @@
   "codexbar-cli": {
     "owner": "steipete",
     "repo": "CodexBar",
-    "version": "0.60.5",
-    "asset": "CodexBarCLI-v0.60.5-linux-x86_64.tar.gz",
-    "hash": "sha256-JwAVapQVR8x115z9/9Nb7FwDMupJxaHDAUeavGYsQ9g="
+    "version": "0.61.0",
+    "asset": "CodexBarCLI-v0.61.0-linux-x86_64.tar.gz",
+    "hash": "sha256-8Sl/NodtPmGiDm1INrHpbrooBuMX64HHp5Nahzbj7go="
   },
   "codexbar-plasma": {
     "owner": "Lucenx9",
